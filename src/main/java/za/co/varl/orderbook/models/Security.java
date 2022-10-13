@@ -1,45 +1,30 @@
 package za.co.varl.orderbook.models;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import za.co.varl.orderbook.utils.enums.EntityStatus;
 import za.co.varl.orderbook.utils.enums.SecurityType;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
-@Entity
-@Table
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Security {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Builder.Default
+    private String id = UUID.randomUUID().toString();
 
-    @NotBlank(message = "Name is mandatory")
     private String name;
-
-    @NotBlank(message = "Symbol is mandatory")
     private String symbol;
-
-    @NotBlank(message = "SecurityType is mandatory")
     private SecurityType securityType;
-
-    @NotBlank(message = "Balance is mandatory")
     private float balance;
 
-    private EntityStatus entityStatus = EntityStatus.ACTIVE;
-    private Date date;
+    @Builder.Default
+    private EntityStatus status = EntityStatus.ACTIVE;
 
-    @PrePersist
-    void preInsert() {
-        if (this.date == null)
-            this.date = new Date();
-    }
+    @Builder.Default
+    private Date date = new Date();
 }

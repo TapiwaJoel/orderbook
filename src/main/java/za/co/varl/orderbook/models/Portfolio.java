@@ -1,7 +1,9 @@
 package za.co.varl.orderbook.models;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -9,17 +11,8 @@ import java.util.List;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Entity
-@Table
 public class Portfolio {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @OneToOne(cascade = CascadeType.ALL)
     private Trader trader;
-
-    @OneToMany
-    @ToString.Exclude
     private List<Security> securities;
 }
