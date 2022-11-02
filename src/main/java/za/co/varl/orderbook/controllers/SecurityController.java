@@ -36,7 +36,7 @@ public class SecurityController {
         return securityService.findBySymbol(symbol);
     }
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<ServiceResponse<List<Security>>> findAll() {
         log.info("Find all securities");
         return securityService.findAll();

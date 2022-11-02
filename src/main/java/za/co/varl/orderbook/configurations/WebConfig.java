@@ -11,7 +11,6 @@ import za.co.varl.orderbook.utils.helpers.StringToEnumConverter;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        log.info("Are we even here");
         registry.addConverter(new StringToEnumConverter());
     }
 }

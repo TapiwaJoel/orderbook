@@ -39,6 +39,11 @@ public class SecurityStorage implements SecurityStorageService {
             throw new ResourceConflictException(String.format("Security with symbol [%s] already exists", security.getSymbol()));
 
         securities.put(security.getSymbol(), security);
+
+        // Matching on order placements
+
+
+
         log.info("[{}] :: security added. Total number of securities :: [{}] ", security.getName(), securities.size());
         return security;
     }

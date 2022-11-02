@@ -12,15 +12,15 @@ import static za.co.varl.orderbook.utils.TestUtils.buildOrder;
 
 @SpringBootTest
 @Slf4j
-class OrderStoreTest {
+class OrderStorageTest {
 
     @Autowired
-    OrderStore orderStore;
+    OrderStorage orderStorage;
 
 
     @Test
     void addNewBuySide() {
-        Order add = orderStore.add(buildOrder());
+        Order add = orderStorage.add(buildOrder());
         Assertions.assertEquals(Currency.ZAR, add.getCurrency());
     }
 }

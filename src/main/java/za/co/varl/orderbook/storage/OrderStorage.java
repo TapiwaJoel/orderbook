@@ -2,29 +2,33 @@ package za.co.varl.orderbook.storage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import za.co.varl.orderbook.models.Order;
+import za.co.varl.orderbook.models.Trade;
 import za.co.varl.orderbook.utils.enums.OrderSide;
 import za.co.varl.orderbook.utils.enums.OrderStatus;
 import za.co.varl.orderbook.utils.exceptions.BadRequestException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class OrderStore implements OrderStoreService {
+@EnableAsync
+public class OrderStorage implements OrderStoreService {
     private final Map<OrderSide, List<Order>> orders = new ConcurrentHashMap<>();
 
     private final SecurityStorageService securityStorageService;
 
     private final TraderStorageService traderStorageService;
+
+    private final TradeStorageService tradeStorageService;
 
     @Override
     public Order add(Order order) {
@@ -148,16 +152,28 @@ public class OrderStore implements OrderStoreService {
 
         if (status != null && !status.status.isEmpty() && side == null) {
 
-            var buyOrders = orders.get(OrderSide.BUY).stream()
-                    .filter(buyOrder -> buyOrder.getOrderStatus().equals(status))
-                    .toList();
+            var buyOrders = orders.get(OrderSide.BUY);
 
-            var sellOrders = orders.get(OrderSide.SELL).stream()
-                    .filter(sellOrder -> sellOrder.getOrderStatus().equals(status))
-                    .toList();
+            if (buyOrders != null) {
+                List<Order> buyOrderList = buyOrders
+                        .stream()
+                        .filter(buyOrder -> buyOrder.getOrderStatus().equals(status))
+                        .toList();
 
-            searchOrders.put(OrderSide.BUY, buyOrders);
-            searchOrders.put(OrderSide.SELL, sellOrders);
+                searchOrders.put(OrderSide.BUY, buyOrderList);
+            }
+
+            var sellOrders = orders.get(OrderSide.SELL);
+
+            if (sellOrders != null) {
+                List<Order> sellOrderList = sellOrders
+                        .stream()
+                        .filter(sellOrder -> sellOrder.getOrderStatus().equals(status))
+                        .toList();
+
+                searchOrders.put(OrderSide.SELL, sellOrderList);
+            }
+
             return searchOrders;
         }
 
@@ -168,5 +184,52 @@ public class OrderStore implements OrderStoreService {
         searchOrders.put(side, requiredOrders);
 
         return searchOrders;
+    }
+
+    @Async
+    @Scheduled(fixedRate = 5000)
+    @Override
+    public void matchOrders() {
+        log.info("**** Matching Orders *****");
+
+        // search order book for unmatched
+
+        var pendingOrders = search(null, OrderStatus.PENDING);
+        var buyOrders = pendingOrders.get(OrderSide.BUY);
+        var sellOrders = pendingOrders.get(OrderSide.SELL);
+
+        if (buyOrders != null && sellOrders != null) {
+            buyOrders.forEach(buyOrder -> sellOrders.forEach(sellOrder -> {
+
+                // Matching on currency, quantity, security and price
+                if (buyOrder.getSecurity().equals(sellOrder.getSecurity()) &&
+                        buyOrder.getPrice() == sellOrder.getPrice() &&
+                        buyOrder.getCurrency().equals(sellOrder.getCurrency()) &&
+                        buyOrder.getQuantity() == sellOrder.getQuantity()) {
+
+                    // UPDATING ORDER STATUSES
+                    buyOrder.setOrderStatus(OrderStatus.MATCHED);
+                    sellOrder.setOrderStatus(OrderStatus.MATCHED);
+
+                    orders.get(OrderSide.BUY).removeIf(order1 -> order1.getId().equalsIgnoreCase(buyOrder.getId()));
+                    orders.get(OrderSide.SELL).removeIf(order1 -> order1.getId().equalsIgnoreCase(sellOrder.getId()));
+
+                    orders.get(OrderSide.BUY).add(buyOrder);
+                    orders.get(OrderSide.SELL).add(sellOrder);
+
+                    var trade = Trade.builder()
+                            .price(buyOrder.getPrice())
+                            .quantity(buyOrder.getQuantity())
+                            .security(buyOrder.getSecurity())
+                            .buyer(buyOrder.getTrader())
+                            .seller(sellOrder.getTrader())
+                            .currency(buyOrder.getCurrency())
+                            .build();
+
+                    // add trade service to trades
+                    tradeStorageService.add(trade);
+                }
+            }));
+        }
     }
 }

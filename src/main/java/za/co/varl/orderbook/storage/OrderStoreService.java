@@ -13,4 +13,6 @@ public interface OrderStoreService {
     Order edit(String id, OrderSide orderSide, Order order);
 
     Map<OrderSide, List<Order>> search(OrderSide side, OrderStatus status);
+
+    void matchOrders() ;
 }
