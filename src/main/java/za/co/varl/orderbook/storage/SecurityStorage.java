@@ -7,7 +7,6 @@ import za.co.varl.orderbook.models.Security;
 import za.co.varl.orderbook.utils.exceptions.BadRequestException;
 import za.co.varl.orderbook.utils.exceptions.ResourceConflictException;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,7 +51,6 @@ public class SecurityStorage implements SecurityStorageService {
 
         if (symbol == null || symbol.isBlank())
             throw new BadRequestException("Symbol field is required");
-
 
         // get the security
         if (!securities.containsKey(symbol))

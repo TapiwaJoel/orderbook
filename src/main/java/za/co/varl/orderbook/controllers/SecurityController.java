@@ -20,7 +20,7 @@ public class SecurityController {
 
     @PostMapping
     public ResponseEntity<ServiceResponse<Security>> save(@RequestBody Security security) {
-        log.info("ADD SECURITY ::::::: [{}]", security);
+        log.info("ADD SECURITY ::::::: [{}]", security.getId());
         return securityService.save(security);
     }
 

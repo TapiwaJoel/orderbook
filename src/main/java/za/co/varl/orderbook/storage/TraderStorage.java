@@ -7,7 +7,6 @@ import za.co.varl.orderbook.models.Trader;
 import za.co.varl.orderbook.utils.exceptions.BadRequestException;
 import za.co.varl.orderbook.utils.exceptions.ResourceConflictException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,7 +56,7 @@ public class TraderStorage implements TraderStorageService {
             throw new BadRequestException("Trader not found");
 
         // check if we have data to update
-        if (trader.getEmail() != null && trader.getEmail().trim().length() > 0){
+        if (trader.getEmail() != null && trader.getEmail().trim().length() > 0) {
             if (findByEmail(trader.getEmail()))
                 throw new ResourceConflictException(String.format("Email [%s] already exists", trader.getEmail()));
 

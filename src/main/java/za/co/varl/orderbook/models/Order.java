@@ -6,6 +6,7 @@ import za.co.varl.orderbook.utils.enums.OrderSide;
 import za.co.varl.orderbook.utils.enums.OrderStatus;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,12 +15,23 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Order {
-    private Long id;
+
+    @Builder.Default
+    private String id = UUID.randomUUID().toString();
+
     private OrderSide orderSide;
     private float quantity;
     private double price;
-    private OrderStatus orderStatus;
+
+    @Builder.Default
+    private OrderStatus orderStatus = OrderStatus.PENDING;
+
     private Currency currency;
-    private Security security;
-    private Date date;
+
+    private String security;
+
+    private String trader;
+
+    @Builder.Default
+    private Date date = new Date();
 }
