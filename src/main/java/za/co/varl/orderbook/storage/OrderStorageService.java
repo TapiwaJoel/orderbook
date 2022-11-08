@@ -7,7 +7,7 @@ import za.co.varl.orderbook.utils.enums.OrderStatus;
 import java.util.List;
 import java.util.Map;
 
-public interface OrderStoreService {
+public interface OrderStorageService {
     Order add(Order order);
 
     Order edit(String id, OrderSide orderSide, Order order);

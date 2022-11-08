@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import za.co.varl.orderbook.models.Order;
-import za.co.varl.orderbook.storage.OrderStoreService;
+import za.co.varl.orderbook.storage.OrderStorageService;
 import za.co.varl.orderbook.utils.dtos.ServiceResponse;
 import za.co.varl.orderbook.utils.enums.OrderSide;
 import za.co.varl.orderbook.utils.enums.OrderStatus;
@@ -18,13 +18,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderStoreService orderStoreService;
+    private final OrderStorageService orderStorageService;
 
     @Override
     public ResponseEntity<ServiceResponse<Order>> save(Order order) {
 
         ServiceResponse<Order> serviceResponse = ServiceResponse.<Order>builder()
-                .data(orderStoreService.add(order))
+                .data(orderStorageService.add(order))
                 .message("Order created successfully")
                 .build();
 
@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<ServiceResponse<Order>> edit(String id, OrderSide orderSide, Order order) {
 
         ServiceResponse<Order> serviceResponse = ServiceResponse.<Order>builder()
-                .data(orderStoreService.edit(id, orderSide, order))
+                .data(orderStorageService.edit(id, orderSide, order))
                 .message("Order edit successfully")
                 .build();
 
@@ -45,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<ServiceResponse<Map<OrderSide, List<Order>>>> search(OrderSide orderSide, OrderStatus orderStatus) {
         var serviceResponse = ServiceResponse.<Map<OrderSide, List<Order>>>builder()
-                .data(orderStoreService.search(orderSide, orderStatus))
+                .data(orderStorageService.search(orderSide, orderStatus))
                 .message("Orders retrieved successfully")
                 .build();
 

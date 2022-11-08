@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @RequiredArgsConstructor
 @EnableAsync
-public class OrderStorage implements OrderStoreService {
+public class OrderStorage implements OrderStorageService {
     private final Map<OrderSide, List<Order>> orders = new ConcurrentHashMap<>();
 
     private final SecurityStorageService securityStorageService;

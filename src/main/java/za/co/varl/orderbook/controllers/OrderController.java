@@ -1,6 +1,5 @@
 package za.co.varl.orderbook.controllers;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +10,7 @@ import za.co.varl.orderbook.utils.dtos.ServiceResponse;
 import za.co.varl.orderbook.utils.enums.OrderSide;
 import za.co.varl.orderbook.utils.enums.OrderStatus;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 

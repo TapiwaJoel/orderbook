@@ -22,6 +22,7 @@ public class SecurityStorage implements SecurityStorageService {
     public Security add(Security security) {
 
         log.info("Security to be added::::[{}]", security);
+
         // Validation
         if (security.getSymbol() == null || security.getSymbol().isBlank())
             throw new BadRequestException("Symbol field is required");
@@ -29,20 +30,19 @@ public class SecurityStorage implements SecurityStorageService {
         if (security.getName() == null || security.getName().isBlank())
             throw new BadRequestException("Name field is required");
 
-        if (String.valueOf(security.getSecurityType()) == null || String.valueOf(security.getSecurityType()).isBlank())
+
+        if (security.getSecurityType() == null ||
+                String.valueOf(security.getSecurityType()) == null ||
+                String.valueOf(security.getSecurityType()).isBlank())
             throw new BadRequestException("SecurityType field is required");
 
-        if (security.getBalance() < 0)
+        if (security.getBalance() <= 0)
             throw new BadRequestException("Balance field is required");
 
         if (securities.containsKey(security.getSymbol()))
             throw new ResourceConflictException(String.format("Security with symbol [%s] already exists", security.getSymbol()));
 
         securities.put(security.getSymbol(), security);
-
-        // Matching on order placements
-
-
 
         log.info("[{}] :: security added. Total number of securities :: [{}] ", security.getName(), securities.size());
         return security;
@@ -54,6 +54,8 @@ public class SecurityStorage implements SecurityStorageService {
         // validations
         // symbols is necessary
 
+        log.info("Symbol ::::[{}]", symbol);
+
         if (symbol == null || symbol.isBlank())
             throw new BadRequestException("Symbol field is required");
 
@@ -63,27 +65,38 @@ public class SecurityStorage implements SecurityStorageService {
 
         var savedSecurity = securities.get(symbol);
 
+        log.info("savedSecurity :::: [{}]", savedSecurity);
+        log.info("securities.isEmpty() :::: [{}]", securities.isEmpty());
+        log.info("securities.size :::: [{}]", securities.size());
+
+
         if (savedSecurity == null)
             throw new BadRequestException("Security symbol supplied not found");
 
         // check if we have data to update
-        if (security.getName() != null && security.getName().trim().length() > 0)
+        if (security.getName() != null && !security.getName().isBlank())
             savedSecurity.setName(security.getName());
 
         if (security.getSecurityType() != null && !String.valueOf(security.getSecurityType()).isBlank())
             savedSecurity.setSecurityType(security.getSecurityType());
 
         if (security.getStatus() != null && !String.valueOf(security.getStatus()).isBlank())
-            savedSecurity.setName(security.getName());
+            savedSecurity.setStatus(security.getStatus());
 
-        if (security.getSymbol() != null && security.getSymbol().trim().length() > 0) {
+        if (security.getSymbol() != null && !security.getSymbol().isBlank()) {
             savedSecurity.setSymbol(security.getSymbol());
             symbol = security.getSymbol();
-            // remove the old security as symbol had changed
-            securities.remove(symbol);
         }
 
-        return securities.put(symbol, savedSecurity);
+        securities.replace(symbol, savedSecurity);
+
+        return savedSecurity;
+    }
+
+
+    @Override
+    public Security deleteBySymbol(String symbol) {
+        return securities.remove(symbol);
     }
 
     @Override

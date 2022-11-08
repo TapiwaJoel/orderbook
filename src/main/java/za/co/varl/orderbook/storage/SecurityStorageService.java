@@ -10,6 +10,7 @@ public interface SecurityStorageService {
     Security edit(String symbol, Security security);
 
     Security findBySymbol(String symbol);
+    Security deleteBySymbol(String symbol);
 
     List<Security> findAll();
 }
